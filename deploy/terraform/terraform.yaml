@@ -1,0 +1,24 @@
+#cloud-config
+groups:
+  - ubuntu: [root, sys]
+  - bot
+
+# Add users to the system. Users are added after groups are added.
+users:
+  - default
+  - name: bot
+    gecos: bot
+    shell: /bin/bash
+    primary_group: bot
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAnYAOKmtCYlVsv5cD+gvalbT0IjxunFZHXa2/GjqJLMC1+/gSTfxWlVek6Vj27i50EN7ceJ51UHpAvAAeArnp8omw4PzQShAdXjVUWUiunyaHCtWnq07W1su/M1VsgXTS7SPwTPsAaJNUGvXRv+SFc2ZwWMKP6iup0RF/xVIb/yVxYgk65VjtANs18P3+3aYAtssTqLq9qI/yGqJsP5IpfTkWlKUHDyJCJ2XV+6dwWyUkiVhTryWpAgjrEo+FvUPrqowqQUkdZeHt5hxWh4ImVR+Pqp7HCR695aHIlm+nOKXuTYLKFodBW6F5vnxnmUt1jhC0atiaXquV1i11bi5jlQ== rsa-key-20171111
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC5c9dV2nnfbWRAvHH3jAn33GbXJPF4SrNvMd0I5NQe8WLLFyYvQqMlmbgQEHvtRvpou6+QfxLfpA4tC4+GtafT5rmZ9bGtlJdHiu9JLBRNwTSN04EnD2gup5PySorObbX29NBRZ43hTIUrOHmM5dbC7aCBS+5Il/uTa/ql/Zy32HxVRPsiQKKSNrP98Jt+DTOr2NXNCSfVqU4Zi3O+XhvfCSQPC0einiwfjTRrJ277OzD7TJK1+yEJOfBqkRhMWdEuY2UtKOn9pLh7h2NLHDrQ/11aA32RAw86MhtrwG+lg1mWStGL19jCSGmwSs5nCi3scDz65cxEJSxLk8jAiT09RRS2yNITyOg0MznQIQnW4GGqe+qiySWK+PY3rCdr8EN7jvgxTYglNjjWl4ylUReU2wXy7pKhXaQgMvaoXQ+9H7V9PDgJo0dGq1a87YL3aHFfQf+utdtmrhe7Fz2EqgM09RX/Yt3CAIf2kGqa2piE0T+XfXVho1vmXIApRYjN40k=
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDkwdxrtsAqKfV7jHEY7KG5ekAWQA2aTNSYQYq2M+dTPMRuQ0DFB9KYWBQdsj7R5GXNwbE+sjDfT3Pe9NfpB30KpLx/kDO/YRFE7DZWkfFZ4cBsSGlLRYCAqsgaBEYIIm3X+LqGFSmW/6U3YRBDo1XGobwmbo07TVL9gmCMHQZUAQ4fyGH/F/4M+0VnnC/YIxkxR/lNVePk2RU+H5cx5FxlsDviCOPdrFgp/2OglUv4P6qI16O4AAxUI3/4ggrVUxtg/gM1Ewhdy+3kgOk3K1mAK4StMXyihnwawuRrDIU9q95un2B0pdWbLhWwJXsBsDkobOb2DA4bDmmZdgXxDFIWZa5RPH+ezCUwC7E53OjRKCALwXziu8TMwqNcfO+FZ8C9noSm/8kRXy50OVGgBriA6uwa2KifOpNeGRl1sLQ96PCcOUGCx/QROxTJ+ES8IamWQFfcMLPMej2YyWWtjBS0Q4yscEpiapYFTU9GS3TNFt8kuYMHcmwPBXcmCAc3s1k= ricardoperovano@Notebook
+
+runcmd:
+  - sudo apt install docker-compose
+  - sudo groupadd docker
+  - sudo usermod -aG docker bot

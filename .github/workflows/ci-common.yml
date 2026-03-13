@@ -1,0 +1,200 @@
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+      SERVER_HOST:
+        required: true
+        type: string
+      SERVER_USERNAME:
+        required: true
+        type: string
+      PROMETHEUS_SERVER_HOST:
+        required: true
+        type: string
+      PROMETHEUS_SERVER_USERNAME:
+        required: true
+        type: string
+      ECR_REGISTRY:
+        required: true
+        type: string
+      AWS_DEFAULT_REGION:
+        required: true
+        type: string
+      APP_NAME:
+        required: true
+        type: string
+      APP_PORT:
+        required: true
+        type: string
+      DOTNET_APP_NAME:
+        required: true
+        type: string
+      DOTNET_ENVIRONMENT:
+        required: true
+        type: string
+      RCS_PATH:
+        required: false
+        type: string
+        default: ''
+      VPN_EXISTS:
+        required: false
+        type: boolean
+        default: false
+
+      
+      
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      ORG_ASCENTY_SERVER_PRIVATE_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: [ "self-hosted", "ascenty"]
+    environment: ${{ inputs.ENVIRONMENT }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Configurar Docker para fazer login no GitHub Container Registry (GHCR)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GIT_TOKEN }}
+        
+      # Build da imagem Docker
+      - name: Build Docker image
+        run: |      
+          docker build . -f Dockerfile.local -t ghcr.io/${{ github.repository }}/${{ inputs.APP_NAME }}:latest
+          docker push ghcr.io/${{ github.repository }}/${{ inputs.APP_NAME }}:latest
+
+      - name: Load docker swarm configuration
+        id: docker-swarm-config
+        env:
+          JSON_SECRETS_CONTEXT: ${{ toJson(secrets) }}
+        run: |
+          export ENV=$(echo ${{ inputs.ENVIRONMENT }} | tr '[:upper:]' '[:lower:]')
+          export GITHUB_SHA="${{ github.sha }}"
+          export ECR_REGISTRY="${{ inputs.ECR_REGISTRY }}"
+          export APP_NAME="${{ inputs.APP_NAME }}"
+          export APP_PORT="${{ inputs.APP_PORT }}"
+          export DOTNET_APP_NAME="${{ inputs.DOTNET_APP_NAME }}"
+          export DOTNET_ENVIRONMENT="${{ inputs.DOTNET_ENVIRONMENT }}"
+
+          if [ -f "deploy/ascenty/docker-swarm/${ENV}/app-secrets.env" ]; then
+            if [ -f tmp-secrets.env ]; then rm -f tmp-secrets.env; fi
+            touch tmp-secrets.env
+            for key in $(cat deploy/ascenty/docker-swarm/${ENV}/app-secrets.env); do
+              uppercase_key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+              value=$(echo "$JSON_SECRETS_CONTEXT" | jq -r ".${uppercase_key}")
+              if [ "$value" != "null" ]; then
+                echo "${key}=${value}" >> tmp-secrets.env
+              else
+                echo "Error: Github Secret $key not found" >&2
+                exit 1
+              fi
+            done
+            echo APP_SECRETS_FILE=$(cat tmp-secrets.env | base64 -w0) >> $GITHUB_ENV
+          fi
+
+          if [ -f "deploy/ascenty/docker-swarm/${ENV}/mssql-secrets.env" ]; then
+            if [ -f tmp-secrets.env ]; then rm -f tmp-secrets.env; fi
+            touch tmp-secrets.env
+            for key in $(cat deploy/ascenty/docker-swarm/${ENV}/mssql-secrets.env); do
+              uppercase_key=$(echo "$key" | tr '[:lower:]' '[:upper:]')
+              value=$(echo "$JSON_SECRETS_CONTEXT" | jq -r ".${uppercase_key}")
+              if [ "$value" != "null" ]; then
+                echo "${key}=${value}" >> tmp-secrets.env
+              else
+                echo "Error: Github Secret $key not found" >&2
+                exit 1
+              fi
+            done
+            echo MSSQL_SECRETS_FILE=$(cat tmp-secrets.env | base64 -w0) >> $GITHUB_ENV
+          fi
+
+          echo SERVICE_STACK_YAML=$(envsubst < deploy/ascenty/docker-swarm/${ENV}/service-stack.yml | base64 -w0) >> $GITHUB_ENV
+
+      - name: Copy docker swarm configuration
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ inputs.SERVER_HOST }}
+          username: ${{ inputs.SERVER_USERNAME }}
+          key: ${{ secrets.ORG_ASCENTY_SERVER_PRIVATE_KEY }}
+          script: |
+            export ENV=$(echo ${{ inputs.ENVIRONMENT }} | tr '[:upper:]' '[:lower:]')
+            if [ ! -d "$HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}" ]; then
+              echo "Diretório $HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV} não existe. Criando..."
+              mkdir -p "$HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}"
+              echo "Diretório criado com sucesso."
+            fi
+
+            if [ -n "${{ env.APP_SECRETS_FILE }}" ]; then echo ${{ env.APP_SECRETS_FILE }} | base64 -d > $HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/app-secrets.env; fi
+            if [ -n "${{ env.MSSQL_SECRETS_FILE }}" ]; then echo ${{ env.MSSQL_SECRETS_FILE }} | base64 -d > $HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/mssql-secrets.env; fi
+            echo ${{ env.SERVICE_STACK_YAML }} | base64 -d > $HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/service-stack.yml
+
+      - name: Create VPN files, if necessary
+        uses: appleboy/ssh-action@master
+        if: ${{ inputs.VPN_EXISTS }}
+        with:
+          host: ${{ inputs.SERVER_HOST }}
+          username: ${{ inputs.SERVER_USERNAME }}
+          key: ${{ secrets.ORG_ASCENTY_SERVER_PRIVATE_KEY }}
+          script: |
+            export ENV=$(echo ${{ inputs.ENVIRONMENT }} | tr '[:upper:]' '[:lower:]')
+            export VPN_PATH="$HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/vpn"
+            export APP_NAME="${{ inputs.APP_NAME }}"
+
+            if [ ! -d "${VPN_PATH}" ]; then
+              echo "Diretório ${VPN_PATH} não existe. Criando..."
+              mkdir -p "${VPN_PATH}/"
+              echo "Diretório criado com sucesso."
+            fi
+
+            cat > ${VPN_PATH}/${APP_NAME}.ovpn <<EOF
+            ${{ secrets.VPN_OVPN }}
+            EOF
+
+            cat > ${VPN_PATH}/${APP_NAME}.credentials <<EOF
+            ${{ secrets.VPN_CREDENTIAL }}
+            EOF
+
+      # - name: Create Postgres files, if necessary
+      #   uses: appleboy/ssh-action@master
+      #   if: ${{ inputs.POSTGRES_USER != '' }} && ${{ inputs.POSTGRES_PASSWORD != '' }} && ${{ inputs.POSTGRES_DB != '' }}
+      #   with:
+      #     host: ${{ inputs.SERVER_HOST }}
+      #     username: ${{ inputs.SERVER_USERNAME }}
+      #     key: ${{ secrets.ORG_ASCENTY_SERVER_PRIVATE_KEY }}
+      #     script: |
+      #       export ENV=$(echo ${{ inputs.ENVIRONMENT }} | tr '[:upper:]' '[:lower:]')
+      #       export PSQL_PATH="$HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/postgresql"
+
+      #       if [ ! -d "${PSQL_PATH}" ]; then
+      #         echo "Diretório ${PSQL_PATH} não existe. Criando..."
+      #         mkdir -p "${PSQL_PATH}/"
+      #         echo "Diretório criado com sucesso."
+      #       fi
+
+      - name: Deploy to docker swarm
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ inputs.SERVER_HOST }}
+          username: ${{ inputs.SERVER_USERNAME }}
+          key: ${{ secrets.ORG_ASCENTY_SERVER_PRIVATE_KEY }}
+          script: |
+            export ENV=$(echo ${{ inputs.ENVIRONMENT }} | tr '[:upper:]' '[:lower:]')
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_DEFAULT_REGION=${{ inputs.AWS_DEFAULT_REGION }}
+            aws ecr get-login-password --region ${{ inputs.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ inputs.ECR_REGISTRY }}
+            docker pull ${{ inputs.ECR_REGISTRY }}/${{ inputs.APP_NAME }}:${{ github.sha }} && \
+            docker stack deploy --compose-file $HOME/docker-swarm/${{ inputs.APP_NAME }}/${ENV}/service-stack.yml --with-registry-auth --prune ${{ inputs.APP_NAME }}

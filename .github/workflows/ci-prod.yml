@@ -1,0 +1,32 @@
+name: Prod
+
+concurrency:
+  group: Prod
+  cancel-in-progress: true
+  
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '**/*.sql'
+
+jobs:
+  prod-deploy:
+    name: Deploy to Prod
+    uses: ./.github/workflows/ci-common.yml
+    with:
+      ENVIRONMENT: Prod
+      SERVER_HOST: prd1-tim-rt-0.ascenty
+      SERVER_USERNAME: mobiuser
+      PROMETHEUS_SERVER_HOST: prd1-mobi-monitoring.ascenty
+      PROMETHEUS_SERVER_USERNAME: mobiuser
+      ECR_REGISTRY: 707019591902.dkr.ecr.us-east-1.amazonaws.com
+      AWS_DEFAULT_REGION: us-east-1
+      APP_NAME: bot-danubio
+      APP_PORT: 5006
+      DOTNET_APP_NAME: Mobi2buy.Retencao.Tim.Portabilidade.ETL
+      DOTNET_ENVIRONMENT: Production
+      VPN_EXISTS: true
+    secrets: inherit

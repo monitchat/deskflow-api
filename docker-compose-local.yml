@@ -1,0 +1,68 @@
+services:
+  app:
+    image: monitchat/danubio-bot
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    volumes:
+      - /etc/hostname:/etc/hostname:ro
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres/danubio_bot
+      - DATABASE_URL=${DATABASE_URL:-postgresql://danubio_bot:<SECRET>@postgres/danubio_bot}
+      - GUNICORN_WORKERS=2
+      - MONITCHAT_API_ACCESS_TOKEN=${MONITCHAT_API_ACCESS_TOKEN}
+      - MONITCHAT_SENDER=${MONITCHAT_SENDER}
+      - MONITCHAT_BASE_URL=${MONITCHAT_BASE_URL}
+      - DANUBIO_USER=${DANUBIO_USER}
+      - DANUBIO_PASSWORD=${DANUBIO_PASSWORD}
+      - no_proxy='*'
+    networks:
+      - bot_danubio
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+      - postgres
+      - redis
+  postgres:
+    image: postgres:11.15-alpine
+    restart: always
+    volumes:
+      - postgres_flow:/var/lib/postgresql/data
+      - ../database/:/docker-entrypoint-initdb.d/:ro
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: posgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+      - "54321:5432"
+    networks:
+      - bot_danubio
+  redis:
+    image: redis:6.0
+    command: --save 60 1 --loglevel warning
+    ports:
+      - "63791:6379"
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+    networks:
+      - bot_danubio
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - bot_danubio
+volumes:
+  postgres_flow:
+
+networks:
+  bot_danubio:
+    driver: bridge

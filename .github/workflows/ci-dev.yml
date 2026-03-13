@@ -1,0 +1,32 @@
+name: Dev
+
+concurrency:
+  group: Dev
+  cancel-in-progress: true
+  
+on:
+  push:
+    branches:
+      - feature/*
+    paths-ignore:
+      - 'README.md'
+      - '**/*.sql'
+
+jobs:
+  dev-deploy:
+    name: Deploy to Dev
+    uses: ./.github/workflows/ci-common.yml
+    with:
+      ENVIRONMENT: Dev
+      SERVER_HOST: dev1-tim-rt-0.ascenty
+      SERVER_USERNAME: mobiuser
+      PROMETHEUS_SERVER_HOST: dev1-mobi-monitoring.ascenty
+      PROMETHEUS_SERVER_USERNAME: mobiuser
+      ECR_REGISTRY: 829334089566.dkr.ecr.us-east-1.amazonaws.com
+      AWS_DEFAULT_REGION: us-east-1
+      APP_NAME: retencao-tim-portabilidade-etl
+      APP_PORT: 5006
+      DOTNET_APP_NAME: Mobi2buy.Retencao.Tim.Portabilidade.ETL
+      DOTNET_ENVIRONMENT: Development
+      VPN_EXISTS: true
+    secrets: inherit

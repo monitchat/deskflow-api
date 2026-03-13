@@ -1,0 +1,21 @@
+FROM python:3.11-slim-bullseye
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Copy source
+WORKDIR /app
+RUN mkdir src
+
+COPY pyproject.toml pyproject.toml
+COPY setup.cfg setup.cfg
+
+# Install dependencies
+RUN apt-get update && apt-get install -y build-essential && \
+    pip install --upgrade pip setuptools && \
+    pip install -e . && \
+    pip install pytest pytest-cov flake8 gunicorn
+
+COPY . .
+
+# Start the Gunicorn server
+CMD ["scripts/run-app.sh"]

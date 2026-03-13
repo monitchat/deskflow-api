@@ -1,0 +1,80 @@
+version: "3.9"
+services:
+  app:
+    image: monitchat.azurecr.io/danubio-bot:${GITHUB_SHA}
+    volumes:
+      - /etc/hostname:/etc/hostname:ro
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - APP_ENV=${APP_ENV}
+      - OMNICHAT_API_KEY=${OMNICHAT_API_KEY}
+      - OMNICHAT_API_SECRET=${OMNICHAT_API_SECRET}
+      - MONITCHAT_API_ACCESS_TOKEN=${MONITCHAT_API_ACCESS_TOKEN}
+      - MONITCHAT_BASE_URL=${MONITCHAT_BASE_URL}
+      - OPENAI_SECRET_KEY=${OPENAI_SECRET_KEY}
+      - no_proxy='*'
+    ports:
+      - "6000:5000"
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+      restart_policy:
+        condition: any
+    depends_on:
+      - pgbouncer
+      - redis
+      - rabbitmq
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+      - DATABASE_URL=${DATABASE_URL_PGBOUNCER}
+      - AUTH_TYPE=plain
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=10000
+    ports:
+      - "5432"
+
+  redis:
+    image: redis:6
+    command: --save 60 1 --loglevel warning
+    volumes:
+      - /home/ubuntu/redis-data:/data
+    ports:
+      - "6379"
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    volumes:
+      - /home/ubuntu/rabbitmq-data/:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - "9100"
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any

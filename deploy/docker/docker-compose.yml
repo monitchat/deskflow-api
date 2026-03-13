@@ -1,0 +1,71 @@
+version: "3.9"
+services:
+  app:
+    image: monitchat.azurecr.io/danubio-bot
+    build:
+      context: ../../.
+      dockerfile: deploy/docker/Dockerfile.local
+    volumes:
+      - /etc/hostname:/etc/hostname:ro
+    env_file:
+      - ../../.env
+    environment:
+      - DATABASE_URL=postgresql://root:root@pgbouncer/danubio_bot
+      - DATABASE_URL_PGBOUNCER=postgresql://root:root@postgres/danubio_bot
+      - GUNICORN_WORKERS=2
+      - no_proxy='*'
+    ports:
+      - "6000:5000"
+    depends_on:
+      - pgbouncer
+      - postgres
+      - rabbitmq
+
+  pgbouncer:
+    image: edoburu/pgbouncer:1.18.0
+    environment:
+      - DATABASE_URL=postgresql://root:root@postgres/danubio_bot
+      - AUTH_TYPE=plain
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=10000
+    ports:
+      - "5432"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:11.15-alpine
+    restart: always
+    volumes:
+      - ../database/:/docker-entrypoint-initdb.d/:ro
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - "9100"
+
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    restart: always
+
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS="+sbwt none +sbwtdcpu none +sbwtdio none"
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
