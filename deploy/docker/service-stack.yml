@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   app:
-    image: monitchat.azurecr.io/danubio-bot:${GITHUB_SHA}
+    image: monitchat.azurecr.io/deskflow:${GITHUB_SHA}
     volumes:
       - /etc/hostname:/etc/hostname:ro
     environment:

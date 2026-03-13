@@ -59,7 +59,7 @@ npm install
 
 Terminal 1 - Backend:
 ```bash
-export FLASK_APP=danubio_bot.app
+export FLASK_APP=deskflow.app
 python -m flask run --host=0.0.0.0 --port=5000
 ```
 
@@ -381,7 +381,7 @@ Retorna o fluxo ativo.
 ### Backend
 
 ```
-src/danubio_bot/
+src/deskflow/
 ├── models/
 │   └── flow.py              # Modelo SQLAlchemy para fluxos
 ├── api/

@@ -7,7 +7,7 @@ Nós de processamento devem passar text="" para os filhos.
 import re
 
 # Lê o arquivo
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'r') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'r') as f:
     content = f.read()
 
 # Padrões para substituir nos nós de processamento (input, api_call, api_request, set_context, transfer, end)
@@ -43,7 +43,7 @@ content = re.sub(
 )
 
 # Escreve de volta
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'w') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'w') as f:
     f.write(content)
 
 print("✅ Text propagation fixed!")

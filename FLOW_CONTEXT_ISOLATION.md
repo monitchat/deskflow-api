@@ -176,12 +176,12 @@ Usuário envia msg:
   - Adiciona índice para performance
 
 ### Backend
-- `src/danubio_bot/conversation.py` (modificado)
+- `src/deskflow/conversation.py` (modificado)
   - Detecta mudança de `flow_id`
   - Reseta `stage` para início do novo fluxo
   - Preserva todos os outros dados do contexto
 
-- `src/danubio_bot/flow_interpreter.py` (modificado)
+- `src/deskflow/flow_interpreter.py` (modificado)
   - Adiciona método `get_start_node()` para detectar nó inicial
   - Fallback automático quando nó não existe
 

@@ -10,11 +10,11 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from danubio_bot.models import flow as flow_model
-from danubio_bot.dbms import Session
+from deskflow.models import flow as flow_model
+from deskflow.dbms import Session
 
 # Mapeamento do fluxo atual da Client
-DANUBIO_FLOW = {
+VIPDESK_FLOW = {
     "nodes": [
         # ===== NÓ INICIAL =====
         {
@@ -626,7 +626,7 @@ def migrate_flow():
     try:
         # Verifica se já existe um fluxo com este nome
         with Session() as session:
-            from danubio_bot.models.flow import Flow
+            from deskflow.models.flow import Flow
             existing = session.query(Flow).filter(Flow.name == "Fluxo Client (Migrado)").first()
 
             if existing:
@@ -641,7 +641,7 @@ def migrate_flow():
                     flow_id=existing.id,
                     name="Fluxo Client (Migrado)",
                     description="Fluxo completo de atendimento da Client - migrado automaticamente do código legado",
-                    data=DANUBIO_FLOW,
+                    data=VIPDESK_FLOW,
                     is_active=False
                 )
                 print(f"✅ Fluxo atualizado com sucesso! ID: {existing.id}")
@@ -650,14 +650,14 @@ def migrate_flow():
                 flow = flow_model.create_flow(
                     name="Fluxo Client (Migrado)",
                     description="Fluxo completo de atendimento da Client - migrado automaticamente do código legado",
-                    data=DANUBIO_FLOW,
+                    data=VIPDESK_FLOW,
                     is_active=False
                 )
                 print(f"✅ Fluxo criado com sucesso! ID: {flow.id}")
 
         print("\n📊 Estatísticas do fluxo:")
-        print(f"   - Nós: {len(DANUBIO_FLOW['nodes'])}")
-        print(f"   - Conexões: {len(DANUBIO_FLOW['edges'])}")
+        print(f"   - Nós: {len(VIPDESK_FLOW['nodes'])}")
+        print(f"   - Conexões: {len(VIPDESK_FLOW['edges'])}")
         print("\n💡 Próximos passos:")
         print("   1. Acesse o Flow Builder em http://localhost:3000")
         print("   2. Abra o fluxo 'Fluxo Client (Migrado)'")

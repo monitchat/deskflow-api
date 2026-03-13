@@ -1,7 +1,7 @@
 version: "3"
 services:
   app:
-    image: monitchat/danubio-bot
+    image: monitchat/deskflow
     build:
       context: .
       dockerfile: ./deploy/docker/Dockerfile
@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@pgbouncer-danubio-bot/danubio_bot
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@pgbouncer-deskflow/deskflow
       - DATABASE_URL_PGBOUNCER=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/$DB_NAME
       - GUNICORN_WORKERS=2
       - MONITCHAT_API_ACCESS_TOKEN=${MONITCHAT_API_ACCESS_TOKEN}
@@ -20,11 +20,11 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - pgbouncer-danubio-bot
+      - pgbouncer-deskflow
 
-  pgbouncer-danubio-bot:
+  pgbouncer-deskflow:
     image: edoburu/pgbouncer:1.18.0
-    container_name: pgbouncer-danubio-bot
+    container_name: pgbouncer-deskflow
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}
       - AUTH_TYPE=plain

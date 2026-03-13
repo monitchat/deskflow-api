@@ -1,6 +1,6 @@
 import pytest
 
-from danubio_bot.app import create_app
+from deskflow.app import create_app
 
 
 @pytest.fixture(scope="module")

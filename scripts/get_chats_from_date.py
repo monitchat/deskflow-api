@@ -5,7 +5,7 @@ from json.decoder import JSONDecodeError
 
 import structlog
 
-from danubio_bot.omnichat import list_chat_messages, list_chats
+from deskflow.omnichat import list_chat_messages, list_chats
 
 log = structlog.get_logger()
 

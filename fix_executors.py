@@ -56,14 +56,14 @@ def add_execute_children_logic(content):
     return content
 
 # Ler o arquivo
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'r') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'r') as f:
     content = f.read()
 
 # Aplicar as mudanças
 content = add_execute_children_logic(content)
 
 # Escrever de volta
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'w') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'w') as f:
     f.write(content)
 
 print("✅ Signatures updated successfully!")

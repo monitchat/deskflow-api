@@ -6,7 +6,7 @@ Script para adicionar o check de execute_children no início dos executors de pr
 import re
 
 # Lê o arquivo
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'r') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'r') as f:
     lines = f.readlines()
 
 # Nós que precisam do check
@@ -69,7 +69,7 @@ def add_execute_children_check(lines):
 new_lines = add_execute_children_check(lines)
 
 # Escreve de volta
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'w') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'w') as f:
     f.writelines(new_lines)
 
 print("✅ Execute_children checks added successfully!")

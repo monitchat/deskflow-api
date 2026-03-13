@@ -24,7 +24,7 @@ jobs:
       PROMETHEUS_SERVER_USERNAME: mobiuser
       ECR_REGISTRY: 707019591902.dkr.ecr.us-east-1.amazonaws.com
       AWS_DEFAULT_REGION: us-east-1
-      APP_NAME: bot-danubio
+      APP_NAME: deskflow
       APP_PORT: 5006
       DOTNET_APP_NAME: Mobi2buy.Retencao.Tim.Portabilidade.ETL
       DOTNET_ENVIRONMENT: Production

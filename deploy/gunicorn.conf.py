@@ -15,7 +15,7 @@ workers = 2
 
 def when_ready(server):
     # Enable mailing loading
-    from danubio_bot import conversation_timer
+    from deskflow import conversation_timer
 
     conversation_timer.start()
     pass

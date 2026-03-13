@@ -14,13 +14,13 @@ Este guia explica como migrar o fluxo existente do código Python para o Flow Bu
 
 ```bash
 # Se ainda não aplicou
-psql -U postgres -d danubio_bot -f deploy/database/02__flows_schema.sql
+psql -U postgres -d deskflow -f deploy/database/02__flows_schema.sql
 ```
 
 ### Passo 2: Executar Script de Migração
 
 ```bash
-cd /home/luiz-ricardo/projects/bot-danubio
+cd /home/luiz-ricardo/projects/deskflow
 python scripts/migrate_flow_to_builder.py
 ```
 
@@ -34,7 +34,7 @@ O script irá:
 
 ```bash
 # Terminal 1 - Backend
-export FLASK_APP=danubio_bot.app
+export FLASK_APP=deskflow.app
 python -m flask run --host=0.0.0.0 --port=5000
 
 # Terminal 2 - Frontend
@@ -152,7 +152,7 @@ Se precisar voltar ao sistema antigo:
 
 ## 🐛 Troubleshooting
 
-### Erro: "No module named danubio_bot.models"
+### Erro: "No module named deskflow.models"
 
 ```bash
 # Reinstale o pacote
@@ -163,7 +163,7 @@ pip install -e .
 
 ```bash
 # Aplique a migration
-psql -U postgres -d danubio_bot -f deploy/database/02__flows_schema.sql
+psql -U postgres -d deskflow -f deploy/database/02__flows_schema.sql
 ```
 
 ### Fluxo não aparece no Flow Builder

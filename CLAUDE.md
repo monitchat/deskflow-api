@@ -57,7 +57,7 @@ scripts/run-tests.sh
 flake8 src/
 
 # Run tests only
-pytest -v --cov=danubio_bot tests/
+pytest -v --cov=deskflow tests/
 
 # Run single test file
 pytest tests/test_file.py -v
@@ -76,7 +76,7 @@ docker run -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.10-man
 docker-compose up
 
 # SSH tunnel for receiving callbacks (development)
-ssh -R 5000:localhost:5000 -i danubio-bot-dev_key.pem ubuntu@danubio-bot-dev.eastus2.cloudapp.azure.com 'sudo killall -9 socat 2>/dev/null ; sudo socat TCP-LISTEN:80,fork,reuseaddr TCP:localhost:5000'
+ssh -R 5000:localhost:5000 -i deskflow-dev_key.pem ubuntu@deskflow-dev.eastus2.cloudapp.azure.com 'sudo killall -9 socat 2>/dev/null ; sudo socat TCP-LISTEN:80,fork,reuseaddr TCP:localhost:5000'
 ```
 
 ## Architecture
@@ -92,7 +92,7 @@ ssh -R 5000:localhost:5000 -i danubio-bot-dev_key.pem ubuntu@danubio-bot-dev.eas
 **Message Processing** (Celery workers):
 - `message_worker.py`: Processes incoming WhatsApp messages via `process_message` task
 - `sender_worker.py`: Sends outgoing messages via `send_message` task with delayed execution support
-- Two RabbitMQ queues: `messages-danubio-bot` and `send-message-danubio-bot`
+- Two RabbitMQ queues: `messages-deskflow` and `send-message-deskflow`
 
 **API Endpoints** (`service.py`):
 - `/api/v1/whatsapp/webhook` (POST): Receives WhatsApp messages, enqueues to Celery
@@ -147,7 +147,7 @@ Replies are dictionaries with `type` field:
 - Currently uses Monitchat provider (`client/factory/monitchat.py`)
 - Methods: `send_text_message`, `send_button_message`, `send_list_message`, `send_media_message`, `end_chat`
 
-**Danubio API** (`client/danubio.py`):
+**Danubio API** (`client/vipdesk.py`):
 - Integration with Sankhya ERP system
 - Fetches customer data: `get_partner()`, `get_client()`, `get_products()`, `get_services()`
 - Updates customer preferences: `update_parceiro()`
@@ -162,7 +162,7 @@ Environment variables in `config.py`:
 - `DATABASE_URL`: PostgreSQL connection string
 - `RABBITMQ_URL`: RabbitMQ broker URL (default: `amqp://rabbitmq:5672`)
 - `MONITCHAT_API_ACCESS_TOKEN`, `MONITCHAT_SENDER`, `MONITCHAT_BASE_URL`: WhatsApp provider credentials
-- `DANUBIO_API_BASE_URL`, `DANUBIO_USER`, `DANUBIO_PASSWORD`: ERP integration
+- `VIPDESK_API_BASE_URL`, `VIPDESK_USER`, `VIPDESK_PASSWORD`: ERP integration
 - `OPENAI_SECRET_KEY`: OpenAI API key (used in conversation.py)
 - Department IDs for routing: `ID_DEPARTAMENTO_GOIABEIRAS`, `ID_DEPARTAMENTO_CREDIARIO`, etc.
 
@@ -185,9 +185,9 @@ Special keyword lists:
 O Flow Builder é uma interface visual para criar e gerenciar fluxos de conversação sem código. Ele substitui a necessidade de editar `bot_stage.py` manualmente.
 
 **Arquivos principais:**
-- `src/danubio_bot/models/flow.py`: Modelo de dados para fluxos
-- `src/danubio_bot/api/flow_api.py`: API REST para CRUD
-- `src/danubio_bot/flow_interpreter.py`: Interpretador de fluxos JSON
+- `src/deskflow/models/flow.py`: Modelo de dados para fluxos
+- `src/deskflow/api/flow_api.py`: API REST para CRUD
+- `src/deskflow/flow_interpreter.py`: Interpretador de fluxos JSON
 - `frontend/`: Interface React com editor visual
 
 **Como funciona:**

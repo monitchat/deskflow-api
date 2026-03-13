@@ -1,4 +1,4 @@
-\c danubio_bot
+\c deskflow
 
 -- Tabela para armazenar fluxos de conversação
 CREATE TABLE flows

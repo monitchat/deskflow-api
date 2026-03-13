@@ -13,4 +13,4 @@ initialize_prometheus_env
 flake8 "${CWD}/../src/"
 
 # Run tests
-exec pytest -v --cov=danubio_bot "${CWD}/../tests/"
+exec pytest -v --cov=deskflow "${CWD}/../tests/"

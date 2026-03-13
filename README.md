@@ -34,7 +34,7 @@
 
 O tunnel abaixo irá possibilitar receber os callbacks da Omnichat em `localhost:5000`
 
-    ssh -R 5000:localhost:5000 -i danubio-bot-dev_key.pem ubuntu@danubio-bot-dev.eastus2.cloudapp.azure.com 'sudo killall -9 socat 2>/dev/null ; sudo socat TCP-LISTEN:80,fork,reuseaddr TCP:localhost:5000'
+    ssh -R 5000:localhost:5000 -i deskflow-dev_key.pem ubuntu@deskflow-dev.eastus2.cloudapp.azure.com 'sudo killall -9 socat 2>/dev/null ; sudo socat TCP-LISTEN:80,fork,reuseaddr TCP:localhost:5000'
 
 ## RabbitMQ
 

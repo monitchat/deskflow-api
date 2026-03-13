@@ -6,7 +6,7 @@ Script para aplicar a lógica de execute_children em todos os executors.
 import re
 
 # Lê o arquivo
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'r') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'r') as f:
     lines = f.readlines()
 
 # Linhas que precisam ser atualizadas (api_call, api_request, set_context, transfer, end)
@@ -77,7 +77,7 @@ def process_file(lines):
 new_lines = process_file(lines)
 
 # Escreve de volta
-with open('/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/flow_interpreter.py', 'w') as f:
+with open('/home/luiz-ricardo/projects/deskflow/src/deskflow/flow_interpreter.py', 'w') as f:
     f.writelines(new_lines)
 
 print("✅ Execute_children logic applied successfully!")

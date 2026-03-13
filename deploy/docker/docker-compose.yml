@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   app:
-    image: monitchat.azurecr.io/danubio-bot
+    image: monitchat.azurecr.io/deskflow
     build:
       context: ../../.
       dockerfile: deploy/docker/Dockerfile.local
@@ -10,8 +10,8 @@ services:
     env_file:
       - ../../.env
     environment:
-      - DATABASE_URL=postgresql://root:root@pgbouncer/danubio_bot
-      - DATABASE_URL_PGBOUNCER=postgresql://root:root@postgres/danubio_bot
+      - DATABASE_URL=postgresql://root:root@pgbouncer/deskflow
+      - DATABASE_URL_PGBOUNCER=postgresql://root:root@postgres/deskflow
       - GUNICORN_WORKERS=2
       - no_proxy='*'
     ports:
@@ -24,7 +24,7 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:1.18.0
     environment:
-      - DATABASE_URL=postgresql://root:root@postgres/danubio_bot
+      - DATABASE_URL=postgresql://root:root@postgres/deskflow
       - AUTH_TYPE=plain
       - POOL_MODE=transaction
       - MAX_CLIENT_CONN=10000

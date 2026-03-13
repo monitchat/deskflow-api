@@ -1,6 +1,6 @@
-resource "hcloud_server" "bot-danubio" {
+resource "hcloud_server" "deskflow" {
   count       = var.instances
-  name        = "bot-danubio-${count.index}"
+  name        = "deskflow-${count.index}"
   image       = var.os_type
   server_type = var.server_type
   location    = var.location
@@ -74,10 +74,10 @@ resource "hcloud_server" "bot-danubio" {
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y build-essential && apt-get install -y libpq-dev",
       "sudo chmod 600 /home/bot/.ssh/id_rsa",
       "cd /home/bot",
-      "GIT_SSH_COMMAND=\"ssh -i /home/bot/.ssh/id_rsa\" git clone git@github.com:monitchat/bot-danubio.git",
-      "mv /home/bot/.env /home/bot/bot-danubio",
-      ". /home/bot/bot-danubio/.env",
-      "cd /home/bot/bot-danubio",
+      "GIT_SSH_COMMAND=\"ssh -i /home/bot/.ssh/id_rsa\" git clone git@github.com:monitchat/deskflow.git",
+      "mv /home/bot/.env /home/bot/deskflow",
+      ". /home/bot/deskflow/.env",
+      "cd /home/bot/deskflow",
       "docker compose up -d pgbouncer rabbitmq",
       "sleep 10",
       "tests/resources/database/seed-database.sh",

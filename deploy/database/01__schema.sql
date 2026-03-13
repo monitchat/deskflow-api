@@ -1,4 +1,4 @@
-\c danubio_bot
+\c deskflow
 
 CREATE TABLE activity
 (

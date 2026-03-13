@@ -1,4 +1,4 @@
-\c danubio_bot
+\c deskflow
 
 -- Adiciona coluna secrets para armazenar credenciais por fluxo
 -- Cada fluxo pode ter suas próprias API keys, tokens, senhas, etc.

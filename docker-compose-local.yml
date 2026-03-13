@@ -1,6 +1,6 @@
 services:
   app:
-    image: monitchat/danubio-bot
+    image: monitchat/deskflow
     build:
       context: .
       dockerfile: Dockerfile.local
@@ -9,17 +9,17 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres/danubio_bot
-      - DATABASE_URL=${DATABASE_URL:-postgresql://danubio_bot:<SECRET>@postgres/danubio_bot}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres/deskflow
+      - DATABASE_URL=${DATABASE_URL:-postgresql://deskflow:<SECRET>@postgres/deskflow}
       - GUNICORN_WORKERS=2
       - MONITCHAT_API_ACCESS_TOKEN=${MONITCHAT_API_ACCESS_TOKEN}
       - MONITCHAT_SENDER=${MONITCHAT_SENDER}
       - MONITCHAT_BASE_URL=${MONITCHAT_BASE_URL}
-      - DANUBIO_USER=${DANUBIO_USER}
-      - DANUBIO_PASSWORD=${DANUBIO_PASSWORD}
+      - VIPDESK_USER=${VIPDESK_USER}
+      - VIPDESK_PASSWORD=${VIPDESK_PASSWORD}
       - no_proxy='*'
     networks:
-      - bot_danubio
+      - deskflow
     ports:
       - "5000:5000"
     depends_on:
@@ -40,7 +40,7 @@ services:
       - "5432:5432"
       - "54321:5432"
     networks:
-      - bot_danubio
+      - deskflow
   redis:
     image: redis:6.0
     command: --save 60 1 --loglevel warning
@@ -51,7 +51,7 @@ services:
       restart_policy:
         condition: any
     networks:
-      - bot_danubio
+      - deskflow
   rabbitmq:
     image: rabbitmq:3.10-management
     restart: always
@@ -59,10 +59,10 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - bot_danubio
+      - deskflow
 volumes:
   postgres_flow:
 
 networks:
-  bot_danubio:
+  deskflow:
     driver: bridge

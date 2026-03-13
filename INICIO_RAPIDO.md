@@ -16,7 +16,7 @@ O fluxo existente foi **migrado com sucesso** para o Flow Builder!
 
 **Terminal 1 - Backend Flask:**
 ```bash
-export FLASK_APP=danubio_bot.app
+export FLASK_APP=deskflow.app
 python -m flask run --host=0.0.0.0 --port=5000
 ```
 
@@ -179,7 +179,7 @@ npm run dev
 
 ```bash
 # Verifique no banco
-psql -U postgres -d danubio_bot -c "SELECT id, name, is_active FROM flows;"
+psql -U postgres -d deskflow -c "SELECT id, name, is_active FROM flows;"
 ```
 
 ### Bot não responde
@@ -204,7 +204,7 @@ psql -U postgres -d danubio_bot -c "SELECT id, name, is_active FROM flows;"
 tail -f nohup.out
 
 # Verificar fluxos no banco
-psql -U postgres -d danubio_bot -c "SELECT * FROM flows;"
+psql -U postgres -d deskflow -c "SELECT * FROM flows;"
 
 # Reexecutar migração (substitui fluxo existente)
 python scripts/migrate_flow_to_builder.py

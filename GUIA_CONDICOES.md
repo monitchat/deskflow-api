@@ -476,11 +476,11 @@ curl http://localhost:5000/api/v1/flows/debug/context
 
 ```bash
 # Ver contexto de um número
-docker exec bot-danubio-postgres-1 psql -U postgres -d danubio_bot -c \
+docker exec deskflow-postgres-1 psql -U postgres -d deskflow -c \
   "SELECT msisdn, data FROM contexts WHERE msisdn = '5527999999999';"
 
 # Ver últimas conversas
-docker exec bot-danubio-postgres-1 psql -U postgres -d danubio_bot -c \
+docker exec deskflow-postgres-1 psql -U postgres -d deskflow -c \
   "SELECT msisdn, data->>'stage' as stage, updated_at FROM contexts ORDER BY updated_at DESC LIMIT 10;"
 ```
 
@@ -515,13 +515,13 @@ curl -X PUT http://localhost:5000/api/v1/flows/2 \
 
 ```bash
 # Buscar JSON
-docker exec bot-danubio-postgres-1 psql -U postgres -d danubio_bot -c \
+docker exec deskflow-postgres-1 psql -U postgres -d deskflow -c \
   "SELECT data FROM flows WHERE id = 2;" > flow.json
 
 # Editar flow.json
 
 # Atualizar (cuidado!)
-docker exec -i bot-danubio-postgres-1 psql -U postgres -d danubio_bot <<EOF
+docker exec -i deskflow-postgres-1 psql -U postgres -d deskflow <<EOF
 UPDATE flows
 SET data = '...'::jsonb
 WHERE id = 2;

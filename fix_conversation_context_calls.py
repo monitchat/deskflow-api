@@ -5,7 +5,7 @@ Script para atualizar chamadas de context em conversation.py para incluir flow_i
 
 import re
 
-file_path = "/home/luiz-ricardo/projects/bot-danubio/src/danubio_bot/conversation.py"
+file_path = "/home/luiz-ricardo/projects/deskflow/src/deskflow/conversation.py"
 
 with open(file_path, "r") as f:
     content = f.read()
@@ -27,7 +27,7 @@ content = content.replace(
                 },
             )""",
     """            # Pega flow_id do data ou usa o ativo
-            from danubio_bot.models.flow import get_active_flow
+            from deskflow.models.flow import get_active_flow
             flow_id = data.get("flow_id")
             if not flow_id:
                 active_flow = get_active_flow()
