@@ -88,7 +88,14 @@ def create_app(settings_override=None):
     # In production, replace origins with specific domains
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:3000", "http://localhost:5173"],
+            "origins": [
+                r"https?://.*\.monitchat\.com",
+                r"https?://monitchat\.com",
+                r"https?://.*\.vipdesk\.com\.br",
+                r"https?://vipdesk\.com\.br",
+                "http://localhost:3000",
+                "http://localhost:5173",
+            ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
