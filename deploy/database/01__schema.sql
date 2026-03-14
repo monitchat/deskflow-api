@@ -80,7 +80,3 @@ CREATE INDEX IF NOT EXISTS idx_contexts_flow_id ON contexts(flow_id);
 
 -- Comment
 COMMENT ON COLUMN contexts.flow_id IS 'ID do fluxo ativo que o usuário está executando. NULL = usa sistema legado';
-
-ALTER TABLE flows ADD COLUMN IF NOT EXISTS company_id INTEGER;
-
-ALTER TABLE flows ADD COLUMN IF NOT EXISTS secrets JSONB DEFAULT '{}';
